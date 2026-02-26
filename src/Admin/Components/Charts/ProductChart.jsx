@@ -12,8 +12,8 @@ import {
   PieChart,
   Pie,
   Cell,
-  Area,
   AreaChart,
+  Area,
 } from "recharts";
 
 const RADIAN = Math.PI / 175;
@@ -61,60 +61,46 @@ const ProductChart = ({ products, review, cart, wishlist, paymentData }) => {
   ];
 
   const cartData = [
-    { name: "Cloths", "Quantity in cart": cart.filter(c => c.productId.type === "cloths").length },
-    { name: "Shoes", "Quantity in cart": cart.filter(c => c.productId.type === "shoe").length },
-    { name: "Electronics", "Quantity in cart": cart.filter(c => c.productId.type === "electronics").length },
-    { name: "Books", "Quantity in cart": cart.filter(c => c.productId.type === "book").length },
-    { name: "Jewelry", "Quantity in cart": cart.filter(c => c.productId.type === "jewelry").length },
+    { name: "Cloths", value: cart.filter(c => c.productId.type === "cloths").length },
+    { name: "Shoes", value: cart.filter(c => c.productId.type === "shoe").length },
+    { name: "Electronics", value: cart.filter(c => c.productId.type === "electronics").length },
+    { name: "Books", value: cart.filter(c => c.productId.type === "book").length },
+    { name: "Jewelry", value: cart.filter(c => c.productId.type === "jewelry").length },
   ];
 
   const wishlistData = [
-    { name: "Cloths", "Quantity in wishlist": wishlist.filter(w => w.productId.type === "cloths").length },
-    { name: "Shoes", "Quantity in wishlist": wishlist.filter(w => w.productId.type === "shoe").length },
-    { name: "Electronics", "Quantity in wishlist": wishlist.filter(w => w.productId.type === "electronics").length },
-    { name: "Books", "Quantity in wishlist": wishlist.filter(w => w.productId.type === "book").length },
-    { name: "Jewelry", "Quantity in wishlist": wishlist.filter(w => w.productId.type === "jewelry").length },
+    { name: "Cloths", value: wishlist.filter(w => w.productId.type === "cloths").length },
+    { name: "Shoes", value: wishlist.filter(w => w.productId.type === "shoe").length },
+    { name: "Electronics", value: wishlist.filter(w => w.productId.type === "electronics").length },
+    { name: "Books", value: wishlist.filter(w => w.productId.type === "book").length },
+    { name: "Jewelry", value: wishlist.filter(w => w.productId.type === "jewelry").length },
   ];
 
   const groupedData = paymentData
     .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
     .reduce((acc, item) => {
-      const month = item.createdAt.substr(0, 7);
-      const found = acc.find(el => el.month === month);
-      if (found) found.totalAmount += item.totalAmount;
-      else acc.push({ month, totalAmount: item.totalAmount });
+      const month = item.createdAt.slice(0, 7);
+      const found = acc.find(m => m.month === month);
+      if (found) found.total += item.totalAmount;
+      else acc.push({ month, total: item.totalAmount });
       return acc;
     }, []);
 
-  const formatXAxis = tick =>
-    new Date(tick).toLocaleString("default", { month: "short" });
-
-  const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8"];
-
   return (
     <Container sx={{ mt: 5 }}>
-      {/* PAYMENT */}
-      <h3 style={{ textAlign: "center", color: "#9932CC" }}>Payment</h3>
       <div style={{ width: "100%", height: 300 }}>
         <ResponsiveContainer>
           <AreaChart data={groupedData}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="month" tickFormatter={formatXAxis} />
+            <XAxis dataKey="month" />
             <YAxis />
             <Tooltip />
             <Legend />
-            <Area
-              type="monotone"
-              dataKey="totalAmount"
-              stroke="#9932CC"
-              fill="#9932CC"
-            />
+            <Area dataKey="total" fill="#8884d8" stroke="#8884d8" />
           </AreaChart>
         </ResponsiveContainer>
       </div>
 
-      {/* PRODUCTS */}
-      <h3 style={{ textAlign: "center", color: "#8884d8" }}>Products</h3>
       <div style={{ width: "100%", height: 300 }}>
         <ResponsiveContainer>
           <BarChart data={productData}>
@@ -123,52 +109,32 @@ const ProductChart = ({ products, review, cart, wishlist, paymentData }) => {
             <YAxis />
             <Tooltip />
             <Legend />
-            <Bar dataKey="Quantity" fill="#8884d8" />
+            <Bar dataKey="Quantity" fill="#82ca9d" />
           </BarChart>
         </ResponsiveContainer>
       </div>
 
-      {/* CART */}
-      <h3 style={{ textAlign: "center", color: "#17becf" }}>Users Cart</h3>
       <div style={{ width: "100%", height: 400 }}>
         <ResponsiveContainer>
           <PieChart>
-            <Tooltip />
             <Pie
               data={cartData}
+              dataKey="value"
               cx="50%"
               cy="50%"
-              labelLine={false}
               label={renderCustomizedLabel}
               outerRadius={150}
-              dataKey="Quantity in cart"
             >
-              {cartData.map((_, index) => (
-                <Cell key={index} fill={COLORS[index % COLORS.length]} />
+              {cartData.map((_, i) => (
+                <Cell key={i} fill={["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8"][i]} />
               ))}
             </Pie>
+            <Tooltip />
           </PieChart>
         </ResponsiveContainer>
       </div>
 
-      {/* WISHLIST */}
-      <h3 style={{ textAlign: "center", color: "#e377c2" }}>Users Wishlist</h3>
-      <div style={{ width: "100%", height: 400 }}>
-        <ResponsiveContainer>
-          <BarChart data={wishlistData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="Quantity in wishlist" fill="#e377c2" />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-
-      {/* REVIEWS */}
-      <h3 style={{ textAlign: "center", color: "#83a6ed" }}>Reviews</h3>
-      <div style={{ width: "100%", height: 400 }}>
+      <div style={{ width: "100%", height: 300 }}>
         <ResponsiveContainer>
           <BarChart data={reviewData}>
             <CartesianGrid strokeDasharray="3 3" />
@@ -176,7 +142,7 @@ const ProductChart = ({ products, review, cart, wishlist, paymentData }) => {
             <YAxis />
             <Tooltip />
             <Legend />
-            <Bar dataKey="Reviews" fill="#83a6ed" />
+            <Bar dataKey="Reviews" fill="#8884d8" />
           </BarChart>
         </ResponsiveContainer>
       </div>
