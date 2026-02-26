@@ -16,7 +16,7 @@ import {
   Area,
 } from "recharts";
 
-const RADIAN = Math.PI / 175;
+const RADIAN = Math.PI / 180;
 
 const renderCustomizedLabel = ({
   cx,
@@ -43,7 +43,13 @@ const renderCustomizedLabel = ({
   );
 };
 
-const ProductChart = ({ products, review, cart, wishlist, paymentData }) => {
+const ProductChart = ({
+  products = [],
+  review = [],
+  cart = [],
+  wishlist = [],
+  paymentData = [],
+}) => {
   const productData = [
     { name: "Cloths", Quantity: products.filter(p => p.type === "cloths").length },
     { name: "Shoes", Quantity: products.filter(p => p.type === "shoe").length },
@@ -61,22 +67,14 @@ const ProductChart = ({ products, review, cart, wishlist, paymentData }) => {
   ];
 
   const cartData = [
-    { name: "Cloths", value: cart.filter(c => c.productId.type === "cloths").length },
-    { name: "Shoes", value: cart.filter(c => c.productId.type === "shoe").length },
-    { name: "Electronics", value: cart.filter(c => c.productId.type === "electronics").length },
-    { name: "Books", value: cart.filter(c => c.productId.type === "book").length },
-    { name: "Jewelry", value: cart.filter(c => c.productId.type === "jewelry").length },
+    { name: "Cloths", value: cart.filter(c => c.productId?.type === "cloths").length },
+    { name: "Shoes", value: cart.filter(c => c.productId?.type === "shoe").length },
+    { name: "Electronics", value: cart.filter(c => c.productId?.type === "electronics").length },
+    { name: "Books", value: cart.filter(c => c.productId?.type === "book").length },
+    { name: "Jewelry", value: cart.filter(c => c.productId?.type === "jewelry").length },
   ];
 
-  const wishlistData = [
-    { name: "Cloths", value: wishlist.filter(w => w.productId.type === "cloths").length },
-    { name: "Shoes", value: wishlist.filter(w => w.productId.type === "shoe").length },
-    { name: "Electronics", value: wishlist.filter(w => w.productId.type === "electronics").length },
-    { name: "Books", value: wishlist.filter(w => w.productId.type === "book").length },
-    { name: "Jewelry", value: wishlist.filter(w => w.productId.type === "jewelry").length },
-  ];
-
-  const groupedData = paymentData
+  const groupedData = [...paymentData]
     .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
     .reduce((acc, item) => {
       const month = item.createdAt.slice(0, 7);
@@ -88,6 +86,7 @@ const ProductChart = ({ products, review, cart, wishlist, paymentData }) => {
 
   return (
     <Container sx={{ mt: 5 }}>
+      {/* Revenue Trend */}
       <div style={{ width: "100%", height: 300 }}>
         <ResponsiveContainer>
           <AreaChart data={groupedData}>
@@ -101,6 +100,7 @@ const ProductChart = ({ products, review, cart, wishlist, paymentData }) => {
         </ResponsiveContainer>
       </div>
 
+      {/* Products */}
       <div style={{ width: "100%", height: 300 }}>
         <ResponsiveContainer>
           <BarChart data={productData}>
@@ -114,6 +114,7 @@ const ProductChart = ({ products, review, cart, wishlist, paymentData }) => {
         </ResponsiveContainer>
       </div>
 
+      {/* Cart Distribution */}
       <div style={{ width: "100%", height: 400 }}>
         <ResponsiveContainer>
           <PieChart>
@@ -122,11 +123,14 @@ const ProductChart = ({ products, review, cart, wishlist, paymentData }) => {
               dataKey="value"
               cx="50%"
               cy="50%"
-              label={renderCustomizedLabel}
               outerRadius={150}
+              label={renderCustomizedLabel}
             >
               {cartData.map((_, i) => (
-                <Cell key={i} fill={["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8"][i]} />
+                <Cell
+                  key={i}
+                  fill={["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8"][i]}
+                />
               ))}
             </Pie>
             <Tooltip />
@@ -134,6 +138,7 @@ const ProductChart = ({ products, review, cart, wishlist, paymentData }) => {
         </ResponsiveContainer>
       </div>
 
+      {/* Reviews */}
       <div style={{ width: "100%", height: 300 }}>
         <ResponsiveContainer>
           <BarChart data={reviewData}>
